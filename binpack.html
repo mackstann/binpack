@@ -1,13 +1,5 @@
 <canvas></canvas>
 <script>
-    function Node()
-    {
-        this.left = null;
-        this.right = null;
-        this.rect = null;
-        this.filled = false;
-    }
-
     function Rect(x, y, w, h)
     {
         this.x = x;
@@ -26,53 +18,61 @@
         return this.w == other.w && this.h == other.h;
     }
 
-    function insert_rect(node, rect)
+    function Node()
+    {
+        this.left = null;
+        this.right = null;
+        this.rect = null;
+        this.filled = false;
+    }
+
+    Node.prototype.insert_rect = function(rect)
     {
         //document.write('1<br>');
-        if(node.left != null)
-            return insert_rect(node.left, rect) || insert_rect(node.right, rect);
+        if(this.left != null)
+            return this.left.insert_rect(rect) || this.right.insert_rect(rect);
 
         //document.write('2<br>');
-        if(node.filled)
+        if(this.filled)
             return null;
 
-        //document.write('3 ' + node.rect + ' ' + rect + '<br>');
-        if(!rect.fits_in(node.rect))
+        //document.write('3 ' + this.rect + ' ' + rect + '<br>');
+        if(!rect.fits_in(this.rect))
             return null;
 
         //document.write('4<br>');
-        if(rect.same_size_as(node.rect))
+        if(rect.same_size_as(this.rect))
         {
             //document.write('filled<br>');
-            node.filled = true;
-            return node;
+            this.filled = true;
+            return this;
         }
 
-        node.left = new Node();
-        node.right = new Node();
+        this.left = new Node();
+        this.right = new Node();
 
-        var width_diff = node.rect.w - rect.w;
-        var height_diff = node.rect.h - rect.h;
+        var width_diff = this.rect.w - rect.w;
+        var height_diff = this.rect.h - rect.h;
 
-        var me = node.rect;
+        var me = this.rect;
 
         //document.write('5<br>');
         if(width_diff > height_diff)
         {
             // split literally into left and right, putting the rect on the left.
-            node.left.rect = new Rect(me.x, me.y, rect.w, me.h);
-            node.right.rect = new Rect(me.x + rect.w, me.y, me.w - rect.w, me.h);
+            this.left.rect = new Rect(me.x, me.y, rect.w, me.h);
+            this.right.rect = new Rect(me.x + rect.w, me.y, me.w - rect.w, me.h);
             //document.write('splitting horizontally<br>');
         }
         else
         {
             // split into top and bottom, putting rect on top.
-            node.left.rect = new Rect(me.x, me.y, me.w, rect.h);
-            node.right.rect = new Rect(me.x, me.y + rect.h, me.w, me.h - rect.h);
+            this.left.rect = new Rect(me.x, me.y, me.w, rect.h);
+            this.right.rect = new Rect(me.x, me.y + rect.h, me.w, me.h - rect.h);
             //document.write('splitting vertically<br>');
         }
 
-        return insert_rect(node.left, rect);
+        return this.left.insert_rect(rect);
     }
 
     var random_color = function()
@@ -108,7 +108,7 @@
             Math.floor(Math.random() * max_rect_width),
             Math.floor(Math.random() * max_rect_height));
         //document.write('<b>box ' + i + '.<br>');
-        var node = insert_rect(start_node, rect);
+        var node = start_node.insert_rect(rect);
         if(node)
         {
             var r = node.rect;
