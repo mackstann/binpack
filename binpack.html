@@ -1,13 +1,11 @@
 <canvas></canvas>
 <script>
-    function new_node()
+    function Node()
     {
-        return {
-            'left': null,
-            'right': null,
-            'rect': null,
-            'filled': false
-        };
+        this.left = null;
+        this.right = null;
+        this.rect = null;
+        this.filled = false;
     }
 
     function rect_fits_in_rect(outer, inner)
@@ -43,8 +41,8 @@
             return node;
         }
 
-        node.left = new_node();
-        node.right = new_node();
+        node.left = new Node();
+        node.right = new Node();
 
         var width_diff = node.rect.width - rect.width;
         var height_diff = node.rect.height - rect.height;
@@ -89,7 +87,7 @@
     var max_rect_width = 25;
     var max_rect_height = 25;
 
-    var start_node = new_node();
+    var start_node = new Node();
     start_node.rect = { 'x': 0, 'y': 0, 'width': width, 'height': height };
 
     var canvas = document.getElementsByTagName('canvas')[0];
@@ -98,6 +96,7 @@
 
     var ctx = canvas.getContext('2d');
 
+    var start = new Date();
     while(true)
     {
         var rect = {
@@ -111,9 +110,12 @@
             var r = node.rect;
             ctx.fillStyle = random_color();
             ctx.fillRect(r.x, r.y, r.width, r.height);
-            document.write('<br>fillRect('+r.x+', '+r.y+', '+r.width+', '+r.height+');');
+            //document.write('<br>fillRect('+r.x+', '+r.y+', '+r.width+', '+r.height+');');
         }
         else
             break;
     }
+    var end = new Date();
+
+    document.write(end.getTime() - start.getTime());
 </script>
