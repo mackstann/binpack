@@ -8,15 +8,22 @@
         this.filled = false;
     }
 
-    function rect_fits_in_rect(outer, inner)
+    function Rect(x, y, w, h)
     {
-        return outer.width >= inner.width &&
-               outer.height >= inner.height;
+        this.x = x;
+        this.y = y;
+        this.w = w;
+        this.h = h;
     }
 
-    function rects_identical(a, b)
+    Rect.prototype.fits_in = function(outer)
     {
-        return a.width == b.width && a.height == b.height;
+        return outer.w >= this.w && outer.h >= this.h;
+    }
+
+    Rect.prototype.same_size_as = function(other)
+    {
+        return this.w == other.w && this.h == other.h;
     }
 
     function insert_rect(node, rect)
@@ -30,11 +37,11 @@
             return null;
 
         //document.write('3 ' + node.rect + ' ' + rect + '<br>');
-        if(!rect_fits_in_rect(node.rect, rect))
+        if(!rect.fits_in(node.rect))
             return null;
 
         //document.write('4<br>');
-        if(rects_identical(node.rect, rect))
+        if(rect.same_size_as(node.rect))
         {
             //document.write('filled<br>');
             node.filled = true;
@@ -44,26 +51,24 @@
         node.left = new Node();
         node.right = new Node();
 
-        var width_diff = node.rect.width - rect.width;
-        var height_diff = node.rect.height - rect.height;
+        var width_diff = node.rect.w - rect.w;
+        var height_diff = node.rect.h - rect.h;
+
+        var me = node.rect;
 
         //document.write('5<br>');
         if(width_diff > height_diff)
         {
             // split literally into left and right, putting the rect on the left.
-            node.left.rect = { 'x': node.rect.x, 'y': node.rect.y,
-                               'width': rect.width, 'height': node.rect.height };
-            node.right.rect = { 'x': node.rect.x + rect.width, 'y': node.rect.y,
-                               'width': node.rect.width - rect.width, 'height': node.rect.height };
+            node.left.rect = new Rect(me.x, me.y, rect.w, me.h);
+            node.right.rect = new Rect(me.x + rect.w, me.y, me.w - rect.w, me.h);
             //document.write('splitting horizontally<br>');
         }
         else
         {
             // split into top and bottom, putting rect on top.
-            node.left.rect = { 'x': node.rect.x, 'y': node.rect.y,
-                               'width': node.rect.width, 'height': rect.height };
-            node.right.rect = { 'x': node.rect.x, 'y': node.rect.y + rect.height,
-                               'width': node.rect.width, 'height': node.rect.height - rect.height };
+            node.left.rect = new Rect(me.x, me.y, me.w, rect.h);
+            node.right.rect = new Rect(me.x, me.y + rect.h, me.w, me.h - rect.h);
             //document.write('splitting vertically<br>');
         }
 
@@ -88,7 +93,7 @@
     var max_rect_height = 25;
 
     var start_node = new Node();
-    start_node.rect = { 'x': 0, 'y': 0, 'width': width, 'height': height };
+    start_node.rect = new Rect(0, 0, width, height);
 
     var canvas = document.getElementsByTagName('canvas')[0];
     canvas.width = width;
@@ -99,18 +104,17 @@
     var start = new Date();
     while(true)
     {
-        var rect = {
-            'width': Math.floor(Math.random() * max_rect_width),
-            'height': Math.floor(Math.random() * max_rect_height)
-        };
+        var rect = new Rect(0, 0, // x/y don't matter here; it has no position yet
+            Math.floor(Math.random() * max_rect_width),
+            Math.floor(Math.random() * max_rect_height));
         //document.write('<b>box ' + i + '.<br>');
         var node = insert_rect(start_node, rect);
         if(node)
         {
             var r = node.rect;
             ctx.fillStyle = random_color();
-            ctx.fillRect(r.x, r.y, r.width, r.height);
-            //document.write('<br>fillRect('+r.x+', '+r.y+', '+r.width+', '+r.height+');');
+            ctx.fillRect(r.x, r.y, r.w, r.h);
+            //document.write('<br>fillRect('+r.x+', '+r.y+', '+r.w+', '+r.h+');');
         }
         else
             break;
