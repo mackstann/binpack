@@ -1,0 +1,119 @@
+<canvas></canvas>
+<script>
+    function new_node()
+    {
+        return {
+            'left': null,
+            'right': null,
+            'rect': null,
+            'filled': false
+        };
+    }
+
+    function rect_fits_in_rect(outer, inner)
+    {
+        return outer.width >= inner.width &&
+               outer.height >= inner.height;
+    }
+
+    function rects_identical(a, b)
+    {
+        return a.width == b.width && a.height == b.height;
+    }
+
+    function insert_rect(node, rect)
+    {
+        //document.write('1<br>');
+        if(node.left != null)
+            return insert_rect(node.left, rect) || insert_rect(node.right, rect);
+
+        //document.write('2<br>');
+        if(node.filled)
+            return null;
+
+        //document.write('3 ' + node.rect + ' ' + rect + '<br>');
+        if(!rect_fits_in_rect(node.rect, rect))
+            return null;
+
+        //document.write('4<br>');
+        if(rects_identical(node.rect, rect))
+        {
+            //document.write('filled<br>');
+            node.filled = true;
+            return node;
+        }
+
+        node.left = new_node();
+        node.right = new_node();
+
+        var width_diff = node.rect.width - rect.width;
+        var height_diff = node.rect.height - rect.height;
+
+        //document.write('5<br>');
+        if(width_diff > height_diff)
+        {
+            // split literally into left and right, putting the rect on the left.
+            node.left.rect = { 'x': node.rect.x, 'y': node.rect.y,
+                               'width': rect.width, 'height': node.rect.height };
+            node.right.rect = { 'x': node.rect.x + rect.width, 'y': node.rect.y,
+                               'width': node.rect.width - rect.width, 'height': node.rect.height };
+            //document.write('splitting horizontally<br>');
+        }
+        else
+        {
+            // split into top and bottom, putting rect on top.
+            node.left.rect = { 'x': node.rect.x, 'y': node.rect.y,
+                               'width': node.rect.width, 'height': rect.height };
+            node.right.rect = { 'x': node.rect.x, 'y': node.rect.y + rect.height,
+                               'width': node.rect.width, 'height': node.rect.height - rect.height };
+            //document.write('splitting vertically<br>');
+        }
+
+        return insert_rect(node.left, rect);
+    }
+
+    var random_color = function()
+    {
+        var r = 32 + Math.floor(Math.random() * 192);
+        var g = 32 + Math.floor(Math.random() * 192);
+        var b = 32 + Math.floor(Math.random() * 192);
+        var colors = [0, 0, 0];
+        colors[Math.min(2, Math.floor(Math.random() * 3))] = 32 + Math.floor(Math.random() * 192);
+        colors[Math.min(2, Math.floor(Math.random() * 3))] = 32 + Math.floor(Math.random() * 192);
+        return 'rgb('+colors[0]+','+colors[1]+','+colors[2]+')';
+    }
+
+    var width = 1000;
+    var height = 1000;
+
+    var max_rect_width = 25;
+    var max_rect_height = 25;
+
+    var start_node = new_node();
+    start_node.rect = { 'x': 0, 'y': 0, 'width': width, 'height': height };
+
+    var canvas = document.getElementsByTagName('canvas')[0];
+    canvas.width = width;
+    canvas.height = height;
+
+    var ctx = canvas.getContext('2d');
+
+    while(true)
+    {
+        var rect = {
+            'width': Math.floor(Math.random() * max_rect_width),
+            'height': Math.floor(Math.random() * max_rect_height)
+        };
+        //document.write('<b>box ' + i + '.<br>');
+        var node = insert_rect(start_node, rect);
+        if(node)
+        {
+            var r = node.rect;
+            ctx.fillStyle = random_color();
+            ctx.fillRect(r.x, r.y, r.width, r.height);
+            document.write('<br>fillRect('+r.x+', '+r.y+', '+r.width+', '+r.height+');');
+        }
+        else
+            break;
+    }
+</script>
