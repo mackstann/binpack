@@ -69,13 +69,13 @@
 
     var random_color = function()
     {
-        var r = 32 + Math.floor(Math.random() * 192);
-        var g = 32 + Math.floor(Math.random() * 192);
-        var b = 32 + Math.floor(Math.random() * 192);
-        var colors = [0, 0, 0];
-        colors[Math.min(2, Math.floor(Math.random() * 3))] = 32 + Math.floor(Math.random() * 192);
-        colors[Math.min(2, Math.floor(Math.random() * 3))] = 32 + Math.floor(Math.random() * 192);
-        return 'rgb('+colors[0]+','+colors[1]+','+colors[2]+')';
+        var color = [0, 0, 0]
+        for(var i = 0; i <= 2; i++)
+        {
+            if(Math.random() < 0.66666)
+                color[i] = parseInt(Math.random() * 255);
+        }
+        return 'rgb('+color[0]+','+color[1]+','+color[2]+')';
     }
 
     var width = 1000;
