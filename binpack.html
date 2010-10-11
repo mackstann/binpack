@@ -1,4 +1,6 @@
-<canvas></canvas>
+<canvas id=status></canvas>
+<br>
+<canvas id=bin></canvas>
 <script>
     function Rect(x, y, w, h)
     {
@@ -78,8 +80,8 @@
         return 'rgb('+color[0]+','+color[1]+','+color[2]+')';
     }
 
-    var width = 1000;
-    var height = 1000;
+    var width = 600;
+    var height = 600;
 
     var max_rect_width = 25;
     var max_rect_height = 25;
@@ -87,18 +89,31 @@
     var start_node = new Node();
     start_node.rect = new Rect(0, 0, width, height);
 
-    var canvas = document.getElementsByTagName('canvas')[0];
+    var canvas = document.getElementById('bin');
     canvas.width = width;
     canvas.height = height;
+
+    var status_canvas = document.getElementById('status');
+    status_canvas.width = max_rect_width + 20*2;
+    status_canvas.height = max_rect_height + 20*2;
+
+    var status_ctx = status_canvas.getContext('2d');
 
     var ctx = canvas.getContext('2d');
 
     var timeout_id = null;
 
     var iteration = function() {
+        var color = random_color();
+
         var rect = new Rect(0, 0, // x/y don't matter here; it has no position yet
             Math.floor(Math.random() * max_rect_width),
             Math.floor(Math.random() * max_rect_height));
+
+        status_ctx.fillStyle = '#fff';
+        status_ctx.fillRect(0, 0, 20+max_rect_width, 20+max_rect_height);
+        status_ctx.fillStyle = color;
+        status_ctx.fillRect(20, 20, rect.w, rect.h);
 
         var node = start_node.insert_rect(rect);
         if(node)
