@@ -1,3 +1,34 @@
+<p style="font-size: small; width: 800px;">
+    This is a demonstration of a 2D <a
+        href="http://en.wikipedia.org/wiki/Bin_packing_problem">bin packing</a>
+    algorithm, operating on a continuously randomly-generated set of
+    rectangles.  Credit for this algorithm goes to Jim Scott.  Read <a
+        href="http://www.blackpawn.com/texts/lightmaps/default.html">his
+        page</a> to learn how it works.
+</p>
+<p style="font-size: small; width: 800px;">
+    I don't claim this to be any sort of optimal implementation.  Ideally, you
+    would have a pre-generated set of rectangles you want to pack into a
+    certain area.  You could then pre-sort them in different ways to find more
+    efficient packing arrangements.  There are also completely different
+    algorithms for accomplishing this task.  This is merely one.  Bin packing
+    is an <a href="http://en.wikipedia.org/wiki/NP-hard">NP-hard</a> problem,
+    meaning that the only way to find the best result is to try every possible
+    combination in a brute force manner, which becomes computationally
+    impractical or impossible when you have many items to pack together.
+</p>
+
+<p>
+    Speed:
+    <a href=# onclick="g_delay = parseInt(g_delay * 0.8); return false;">faster</a>
+    <a href=# onclick="g_delay = Math.max(g_delay + 1, parseInt(g_delay * 1.2)); return false;">
+        slower</a>
+</p>
+<p>
+    Piece size:
+    <a href=# onclick="update_piece_size(Math.max(g_max_rect_size + 1, g_max_rect_size * 1.1)); return false;">bigger</a>
+    <a href=# onclick="update_piece_size(Math.max(1, g_max_rect_size * 0.9)); return false;">smaller</a>
+</p>
 <p>
     <span id=percentfull></span>% full
     (<span id=pixelstogo></span> pixels to go)
@@ -90,13 +121,10 @@
         return 'rgb('+color[0]+','+color[1]+','+color[2]+')';
     }
 
-    var width = 100;
-    var height = 100;
+    var width = 800;
+    var height = 800;
     var total_area = width * height;
     var filled_area = 0;
-
-    var max_rect_width = 25;
-    var max_rect_height = 25;
 
     var start_node = new Node();
     start_node.rect = new Rect(0, 0, width, height);
@@ -106,8 +134,16 @@
     canvas.height = height;
 
     var status_canvas = document.getElementById('status');
-    status_canvas.width = max_rect_width;
-    status_canvas.height = max_rect_height;
+
+    g_max_rect_size = null;
+
+    var update_piece_size = function(size)
+    {
+        g_max_rect_size = size;
+        status_canvas.width = g_max_rect_size;
+        status_canvas.height = g_max_rect_size;
+    }
+    update_piece_size(25);
 
     var status_ctx = status_canvas.getContext('2d');
 
@@ -118,16 +154,18 @@
     var percentfull_el = document.getElementById('percentfull');
     var pixelstogo_el = document.getElementById('pixelstogo');
 
+    g_delay = 100;
+
     var iteration = function() {
         var color = random_color();
 
         var rect = new Rect(0, 0, // x/y don't matter here; it has no position yet
-            Math.floor(Math.random() * max_rect_width),
-            Math.floor(Math.random() * max_rect_height));
+            Math.floor(Math.random() * g_max_rect_size),
+            Math.floor(Math.random() * g_max_rect_size));
             // XXX these could be 0...
 
         status_ctx.fillStyle = '#fff';
-        status_ctx.fillRect(0, 0, max_rect_width, max_rect_height);
+        status_ctx.fillRect(0, 0, g_max_rect_size, g_max_rect_size);
         status_ctx.fillStyle = color;
         status_ctx.fillRect(0, 0, rect.w, rect.h);
 
@@ -141,10 +179,7 @@
             percentfull_el.innerHTML = ((filled_area / total_area) * 100).toFixed(6);
             pixelstogo_el.innerHTML = total_area - filled_area;
         }
-        setTimeout(iteration, 0);
-        //else
-            //clearTimeout(timeout_id);
+        setTimeout(iteration, g_delay);
     };
-
     setTimeout(iteration, 0);
 </script>
