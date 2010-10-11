@@ -1,6 +1,16 @@
-<canvas id=status></canvas>
+<p>
+    <span id=percentfull></span>% full
+    (<span id=pixelstogo></span> pixels to go)
+</p>
+
+<p>
+    Next piece:
+    <canvas id=status></canvas>
+</p>
+
 <br>
 <canvas id=bin></canvas>
+
 <script>
     function Rect(x, y, w, h)
     {
@@ -80,8 +90,10 @@
         return 'rgb('+color[0]+','+color[1]+','+color[2]+')';
     }
 
-    var width = 600;
-    var height = 600;
+    var width = 100;
+    var height = 100;
+    var total_area = width * height;
+    var filled_area = 0;
 
     var max_rect_width = 25;
     var max_rect_height = 25;
@@ -94,8 +106,8 @@
     canvas.height = height;
 
     var status_canvas = document.getElementById('status');
-    status_canvas.width = max_rect_width + 20*2;
-    status_canvas.height = max_rect_height + 20*2;
+    status_canvas.width = max_rect_width;
+    status_canvas.height = max_rect_height;
 
     var status_ctx = status_canvas.getContext('2d');
 
@@ -103,17 +115,21 @@
 
     var timeout_id = null;
 
+    var percentfull_el = document.getElementById('percentfull');
+    var pixelstogo_el = document.getElementById('pixelstogo');
+
     var iteration = function() {
         var color = random_color();
 
         var rect = new Rect(0, 0, // x/y don't matter here; it has no position yet
             Math.floor(Math.random() * max_rect_width),
             Math.floor(Math.random() * max_rect_height));
+            // XXX these could be 0...
 
         status_ctx.fillStyle = '#fff';
-        status_ctx.fillRect(0, 0, 20+max_rect_width, 20+max_rect_height);
+        status_ctx.fillRect(0, 0, max_rect_width, max_rect_height);
         status_ctx.fillStyle = color;
-        status_ctx.fillRect(20, 20, rect.w, rect.h);
+        status_ctx.fillRect(0, 0, rect.w, rect.h);
 
         var node = start_node.insert_rect(rect);
         if(node)
@@ -121,6 +137,9 @@
             var r = node.rect;
             ctx.fillStyle = random_color();
             ctx.fillRect(r.x, r.y, r.w, r.h);
+            filled_area += r.w * r.h;
+            percentfull_el.innerHTML = ((filled_area / total_area) * 100).toFixed(6);
+            pixelstogo_el.innerHTML = total_area - filled_area;
         }
         setTimeout(iteration, 0);
         //else
