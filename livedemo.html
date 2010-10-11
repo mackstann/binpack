@@ -20,14 +20,16 @@
 
 <p>
     Speed:
+    <a href=# onclick="g_delay = 0; return false;">fastest</a>
     <a href=# onclick="g_delay = parseInt(g_delay * 0.8); return false;">faster</a>
     <a href=# onclick="g_delay = Math.max(g_delay + 1, parseInt(g_delay * 1.2)); return false;">
         slower</a>
 </p>
 <p>
     Piece size:
-    <a href=# onclick="update_piece_size(Math.max(g_max_rect_size + 1, g_max_rect_size * 1.1)); return false;">bigger</a>
-    <a href=# onclick="update_piece_size(Math.max(1, g_max_rect_size * 0.9)); return false;">smaller</a>
+    <a href=# onclick="update_piece_size(parseInt(Math.max(g_max_rect_size + 1, g_max_rect_size * 1.1))); return false;">bigger</a>
+    <a href=# onclick="update_piece_size(parseInt(Math.max(1, g_max_rect_size * 0.9))); return false;">smaller</a>
+    <a href=# onclick="update_piece_size(1); return false;">smallest</a>
 </p>
 <p>
     <span id=percentfull></span>% full
@@ -160,9 +162,8 @@
         var color = random_color();
 
         var rect = new Rect(0, 0, // x/y don't matter here; it has no position yet
-            Math.floor(Math.random() * g_max_rect_size),
-            Math.floor(Math.random() * g_max_rect_size));
-            // XXX these could be 0...
+            Math.min(Math.floor(1 + Math.random() * g_max_rect_size), g_max_rect_size),
+            Math.min(Math.floor(1 + Math.random() * g_max_rect_size), g_max_rect_size));
 
         status_ctx.fillStyle = '#fff';
         status_ctx.fillRect(0, 0, g_max_rect_size, g_max_rect_size);
@@ -179,7 +180,8 @@
             percentfull_el.innerHTML = ((filled_area / total_area) * 100).toFixed(6);
             pixelstogo_el.innerHTML = total_area - filled_area;
         }
-        setTimeout(iteration, g_delay);
+        if(total_area - filled_area)
+            setTimeout(iteration, g_delay);
     };
     setTimeout(iteration, 0);
 </script>
