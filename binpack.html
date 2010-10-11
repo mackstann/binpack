@@ -73,7 +73,7 @@
         for(var i = 0; i <= 2; i++)
         {
             if(Math.random() < 0.66666)
-                color[i] = parseInt(Math.random() * 255);
+                color[i] = 32 + parseInt(Math.random() * 192);
         }
         return 'rgb('+color[0]+','+color[1]+','+color[2]+')';
     }
@@ -93,9 +93,9 @@
 
     var ctx = canvas.getContext('2d');
 
-    var start = new Date();
-    while(true)
-    {
+    var timeout_id = null;
+
+    var iteration = function() {
         var rect = new Rect(0, 0, // x/y don't matter here; it has no position yet
             Math.floor(Math.random() * max_rect_width),
             Math.floor(Math.random() * max_rect_height));
@@ -106,12 +106,11 @@
             var r = node.rect;
             ctx.fillStyle = random_color();
             ctx.fillRect(r.x, r.y, r.w, r.h);
-            //document.write('<br>fillRect('+r.x+', '+r.y+', '+r.w+', '+r.h+');');
         }
-        else
-            break;
-    }
-    var end = new Date();
+        setTimeout(iteration, 0);
+        //else
+            //clearTimeout(timeout_id);
+    };
 
-    document.write('' + (end.getTime() - start.getTime()) + 'ms');
+    setTimeout(iteration, 0);
 </script>
